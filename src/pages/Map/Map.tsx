@@ -1,5 +1,10 @@
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
+const containerStyle = {
+  width: '100%',
+  height: '600px'
+};
+
 const Map = () => {
   const center = {
         lat: 49.2827, // Vancouver latitude
@@ -9,7 +14,11 @@ const Map = () => {
   return <>
     <h1>Map Page</h1>
     <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_API}>
-      <GoogleMap center={center} zoom={12}>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={12}
+      >
         <Marker position={center} />
       </GoogleMap>
     </LoadScript>
