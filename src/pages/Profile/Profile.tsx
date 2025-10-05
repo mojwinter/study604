@@ -9,7 +9,7 @@ const Profile = () => {
     name: "Mitchell Winter",
     username: "@mitchell.winter",
     email: "mitchell.winter@queensu.ca",
-    phone: "+1 (778) 989-7215",
+    phone: "+1 (778) 000-0000",
     initials: "MW",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John"
   };
