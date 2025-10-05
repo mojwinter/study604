@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
+import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import MarkerDialog from "../../components/MarkerDialog"
 
 const containerStyle = {
@@ -21,6 +21,10 @@ const Map = () => {
         lng: -123.1207, // Vancouver longitude
   };
 
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_API || ""
+  });
+
   // Prevent scrolling on the map page
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -29,43 +33,44 @@ const Map = () => {
     };
   }, []);
 
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading maps...</div>;
+
   return (
     <div className="fixed inset-0 w-full h-full overflow-hidden">
-      <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_API}>
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={center}
-          zoom={12}
-          options={{
-            fullscreenControl: true,
-            fullscreenControlOptions: {
-              position: 2 // TOP_RIGHT
-            },
-            streetViewControl: false,
-            mapTypeControl: false,
-            zoomControl: true,
-            zoomControlOptions: {
-              position: 7 // RIGHT_CENTER
-            },
-            styles: [],
-            gestureHandling: 'greedy'
-          }}
-        >
-          {markers.map((marker) => (
-            <Marker
-              key={marker.id}
-              position={marker.position}
-              onClick={() => setSelectedMarkerId(marker.id)}
-            >
-              {selectedMarkerId === marker.id && (
-                <InfoWindow onCloseClick={() => setSelectedMarkerId(null)}>
-                  <MarkerDialog marker={marker} />
-                </InfoWindow>
-              )}
-            </Marker>
-          ))}
-        </GoogleMap>
-      </LoadScript>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={12}
+        options={{
+          fullscreenControl: true,
+          fullscreenControlOptions: {
+            position: 2 // TOP_RIGHT
+          },
+          streetViewControl: false,
+          mapTypeControl: false,
+          zoomControl: true,
+          zoomControlOptions: {
+            position: 7 // RIGHT_CENTER
+          },
+          styles: [],
+          gestureHandling: 'greedy'
+        }}
+      >
+        {markers.map((marker) => (
+          <Marker
+            key={marker.id}
+            position={marker.position}
+            onClick={() => setSelectedMarkerId(marker.id)}
+          >
+            {selectedMarkerId === marker.id && (
+              <InfoWindow onCloseClick={() => setSelectedMarkerId(null)}>
+                <MarkerDialog marker={marker} />
+              </InfoWindow>
+            )}
+          </Marker>
+        ))}
+      </GoogleMap>
     </div>
   );
 }
