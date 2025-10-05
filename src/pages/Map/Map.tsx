@@ -1,21 +1,10 @@
-<<<<<<< Updated upstream
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import MarkerDialog from "../../components/MarkerDialog"
 
 const containerStyle = {
   width: '100%',
-  height: '600px',
-  margin: 0,
-  padding: 0
-=======
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
-import { useEffect } from "react";
-
-const containerStyle = {
-  width: '100%',
   height: '100%'
->>>>>>> Stashed changes
 };
 
 // Example marker data
@@ -32,42 +21,6 @@ const Map = () => {
         lng: -123.1207, // Vancouver longitude
   };
 
-<<<<<<< Updated upstream
-  const mapOptions = {
-    streetViewControl: false, // This line disables the Street View control
-    zoomControl: true,
-    mapTypeControl: false,
-    scaleControl: false,
-    rotateControl: false,
-    fullscreenControl: false
-  };
-
-  return <>
-    <h1>Map Page</h1>
-    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_API}>
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={12}
-        options={mapOptions}
-      >
-        {markers.map((marker) => (
-          <Marker
-            key={marker.id}
-            position={marker.position}
-            onClick={() => setSelectedMarkerId(marker.id)}
-          >
-            {selectedMarkerId === marker.id && (
-              <InfoWindow onCloseClick={() => setSelectedMarkerId(null)}>
-                <MarkerDialog marker={marker} />
-              </InfoWindow>
-            )}
-          </Marker>
-        ))}
-      </GoogleMap>
-    </LoadScript>
-  </>;
-=======
   // Prevent scrolling on the map page
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -98,12 +51,23 @@ const Map = () => {
             gestureHandling: 'greedy'
           }}
         >
-          <Marker position={center} />
+          {markers.map((marker) => (
+            <Marker
+              key={marker.id}
+              position={marker.position}
+              onClick={() => setSelectedMarkerId(marker.id)}
+            >
+              {selectedMarkerId === marker.id && (
+                <InfoWindow onCloseClick={() => setSelectedMarkerId(null)}>
+                  <MarkerDialog marker={marker} />
+                </InfoWindow>
+              )}
+            </Marker>
+          ))}
         </GoogleMap>
       </LoadScript>
     </div>
   );
->>>>>>> Stashed changes
 }
 
 export default Map;
