@@ -5,6 +5,7 @@ import Saved from "./pages/Saved/Saved";
 import Profile from "./pages/Profile/Profile";
 import Map from "./pages/Map/Map";
 import Spot from "./pages/Spot/Spot";
+import Review from "./pages/Review/Review";
 import { Compass, MapIcon, Bookmark, User } from "lucide-react";
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/saved" element={<Saved />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/spot/:id" element={<Spot />} />
+        <Route path="/review/:id" element={<Review />} />
       </Routes>
 
       {/* Fixed Bottom Navigation */}

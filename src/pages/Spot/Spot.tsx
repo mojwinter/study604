@@ -1,11 +1,45 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star } from "lucide-react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
 
 const Spot = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.reviewSubmitted) {
+      setShowConfirmation(true);
+      setHasReviewed(true);
+      // Clear the state
+      window.history.replaceState({}, document.title);
+      // Hide after 2 seconds
+      setTimeout(() => {
+        setShowConfirmation(false);
+      }, 2000);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    // Check if user has already reviewed this spot
+    const checkReview = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+        const response = await fetch(`${apiUrl}/reviews?spotId=${id}`);
+        if (response.ok) {
+          const reviews = await response.json();
+          setHasReviewed(reviews.length > 0);
+        }
+      } catch (error) {
+        console.error("Error checking reviews:", error);
+      }
+    };
+    checkReview();
+  }, [id]);
 
   // Mock data - in a real app this would come from an API or state management
   const spot = {
@@ -98,12 +132,47 @@ const Spot = () => {
         </div>
       </div>
 
-      {/* Get Directions Button */}
-      <div className="px-6">
+      {/* Action Buttons */}
+      <div className="px-6 space-y-3">
+        <Button
+          onClick={() => !hasReviewed && navigate(`/review/${id}`)}
+          disabled={hasReviewed}
+          className={`w-full rounded-xl py-6 text-base font-semibold flex items-center justify-center gap-2 ${
+            hasReviewed
+              ? "bg-gray-100 text-gray-500 border-2 border-gray-200 cursor-not-allowed"
+              : "bg-white hover:bg-gray-50 text-[#5B7553] border-2 border-[#5B7553]"
+          }`}
+        >
+          {hasReviewed ? (
+            <>
+              <CheckCircle className="w-5 h-5" />
+              Reviewed
+            </>
+          ) : (
+            "Write a Review"
+          )}
+        </Button>
         <Button className="w-full bg-[#5B7553] hover:bg-[#4a6044] text-white rounded-xl py-6 text-base font-semibold">
           Get Directions
         </Button>
       </div>
+
+      {/* Confirmation Popup */}
+      {showConfirmation && (
+        <div className="fixed bottom-24 left-0 right-0 flex items-center justify-center z-50 px-6 max-w-md mx-auto">
+          <div className="bg-white rounded-2xl p-6 shadow-2xl border border-gray-100 w-full animate-in fade-in slide-in-from-bottom duration-300">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-[#E8F0E6] rounded-full flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-7 h-7 text-[#5B7553]" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-gray-900 mb-0.5">Review Submitted!</h2>
+                <p className="text-sm text-gray-500">Thank you for sharing your experience</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
