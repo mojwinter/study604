@@ -39,7 +39,16 @@ const Review = () => {
     setRatings((prev) => ({ ...prev, [category]: value }));
   };
 
+  const isFormValid = () => {
+    // Check if all ratings are filled (greater than 0)
+    return Object.values(ratings).every((rating) => rating > 0);
+  };
+
   const handleSubmit = async () => {
+    if (!isFormValid()) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     const reviewData = {
@@ -155,7 +164,7 @@ const Review = () => {
         {/* Submit Button */}
         <button
           onClick={handleSubmit}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !isFormValid()}
           className="w-full bg-[#5B7553] text-white font-semibold py-4 rounded-2xl hover:bg-[#4a5f43] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Submitting..." : "Submit"}
