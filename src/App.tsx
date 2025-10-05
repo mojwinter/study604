@@ -21,8 +21,8 @@ function App() {
       </Routes>
 
       {/* Fixed Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-        <div className="max-w-md mx-auto flex items-center justify-around px-6 py-3">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-6">
+        <div className="max-w-md mx-auto flex items-center justify-around px-6 pt-2">
           <Link
             to="/"
             className={`flex flex-col items-center gap-1 transition-colors ${
