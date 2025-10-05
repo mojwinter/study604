@@ -2,11 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import MarkerDialog from "../../components/MarkerDialog"
 
-const containerStyle = {
-  width: '100%',
-  height: '100%'
-};
-
 // Example marker data
 const markers = [
   { id: 1, position: { lat: 49.2827, lng: -123.1207 }, content: "Marker 1: Vancouver" },
@@ -44,41 +39,51 @@ const Map = () => {
   if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
-    <div className="fixed inset-0 w-full h-full overflow-hidden">
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={12}
-        options={{
-          fullscreenControl: false,
-          streetViewControl: false,
-          mapTypeControl: false,
-          zoomControl: true,
-          zoomControlOptions: {
-            position: 7 // RIGHT_CENTER
-          },
-          styles: [],
-          restriction: {
-            latLngBounds: vancouverBounds,
-            strictBounds: true
-          },
-          gestureHandling: 'greedy'
-        }}
-      >
-        {markers.map((marker) => (
-          <Marker
-            key={marker.id}
-            position={marker.position}
-            onClick={() => setSelectedMarkerId(marker.id)}
+    <div className="min-h-screen bg-white pb-20">
+      {/* Header */}
+      <div className="px-6 pt-3 pb-4">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Map</h1>
+        <p className="text-sm text-gray-500">Explore Vancouver study spots</p>
+      </div>
+
+      {/* Map Container */}
+      <div className="rounded-2xl overflow-hidden shadow-sm border border-gray-100" style={{ height: 'calc(100vh - 180px)' }}>
+        <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '100%' }}
+            center={center}
+            zoom={12}
+            options={{
+              fullscreenControl: false,
+              streetViewControl: false,
+              mapTypeControl: false,
+              zoomControl: false,
+              panControl: false,
+              rotateControl: false,
+              scaleControl: false,
+              styles: [],
+              restriction: {
+                latLngBounds: vancouverBounds,
+                strictBounds: true
+              },
+              gestureHandling: 'greedy',
+              disableDefaultUI: true
+            }}
           >
-            {selectedMarkerId === marker.id && (
-              <InfoWindow onCloseClick={() => setSelectedMarkerId(null)}>
-                <MarkerDialog marker={marker} />
-              </InfoWindow>
-            )}
-          </Marker>
-        ))}
-      </GoogleMap>
+          {markers.map((marker) => (
+            <Marker
+              key={marker.id}
+              position={marker.position}
+              onClick={() => setSelectedMarkerId(marker.id)}
+            >
+              {selectedMarkerId === marker.id && (
+                <InfoWindow onCloseClick={() => setSelectedMarkerId(null)}>
+                  <MarkerDialog marker={marker} />
+                </InfoWindow>
+              )}
+            </Marker>
+          ))}
+        </GoogleMap>
+      </div>
     </div>
   );
 }
