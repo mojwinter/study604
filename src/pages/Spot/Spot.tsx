@@ -2,8 +2,9 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle, UtensilsCrossed, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface SpotData {
   id: number;
@@ -23,17 +24,12 @@ const Spot = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [hasReviewed, setHasReviewed] = useState(false);
-  const [spot, setSpot] = useState<SpotData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isSaved, setIsSaved] = useState(false);
-  const [savedId, setSavedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (location.state?.reviewSubmitted) {
       setShowConfirmation(true);
-      setHasReviewed(true);
       // Clear the state
       window.history.replaceState({}, document.title);
       // Hide after 2 seconds
@@ -43,107 +39,89 @@ const Spot = () => {
     }
   }, [location]);
 
-  useEffect(() => {
-    // Fetch spot data from Supabase
-    const fetchSpot = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('spots')
-          .select('*')
-          .eq('id', id)
-          .single();
+  // Fetch spot data with caching
+  const { data: spot, isLoading: loading } = useQuery({
+    queryKey: ['spot', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('spots')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (error) throw error;
+      return data as SpotData;
+    },
+  });
 
-        if (error) {
-          console.error("Error fetching spot:", error);
-        } else {
-          setSpot(data);
-        }
-      } catch (error) {
-        console.error("Error fetching spot:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSpot();
-  }, [id]);
+  // Fetch reviews with caching
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['reviews', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('spot_id', id);
+      if (error) throw error;
+      return data;
+    },
+  });
 
-  useEffect(() => {
-    // Check if user has already reviewed this spot
-    const checkReview = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('reviews')
-          .select('*')
-          .eq('spot_id', id);
+  // Fetch saved status with caching
+  const { data: savedData = [] } = useQuery({
+    queryKey: ['saved'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('saved').select('*');
+      if (error) throw error;
+      return data;
+    },
+  });
 
-        if (!error && data) {
-          setHasReviewed(data.length > 0);
-        }
-      } catch (error) {
-        console.error("Error checking reviews:", error);
-      }
-    };
-    checkReview();
-  }, [id]);
+  const hasReviewed = reviews.length > 0;
+  const savedSpot = useMemo(() => {
+    return savedData.find(s => String(s.spot_id) === String(id));
+  }, [savedData, id]);
+  const isSaved = !!savedSpot;
+  const savedId = savedSpot?.id;
 
-  useEffect(() => {
-    // Check if spot is saved
-    const checkSaved = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('saved')
-          .select('*')
-          .eq('spot_id', id);
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const { data, error } = await supabase
+        .from('saved')
+        .insert({
+          id: newId,
+          spot_id: Number(id),
+          spot_name: spot?.name || '',
+          address: spot?.address || '',
+          rating: spot?.rating || 0,
+          image: spot?.image || '',
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved'] });
+    },
+  });
 
-        if (!error && data && data.length > 0) {
-          setIsSaved(true);
-          setSavedId(data[0].id);
-        }
-      } catch (error) {
-        console.error("Error checking saved status:", error);
-      }
-    };
-    checkSaved();
-  }, [id]);
+  const unsaveMutation = useMutation({
+    mutationFn: async (savedId: string) => {
+      const { error } = await supabase.from('saved').delete().eq('id', savedId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved'] });
+    },
+  });
 
-  const handleSaveToggle = async (e: React.MouseEvent) => {
+  const handleSaveToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    try {
-      if (isSaved && savedId) {
-        // Remove from saved
-        const { error } = await supabase
-          .from('saved')
-          .delete()
-          .eq('id', savedId);
-
-        if (!error) {
-          setIsSaved(false);
-          setSavedId(null);
-        }
-      } else {
-        // Add to saved
-        const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        const { data, error } = await supabase
-          .from('saved')
-          .insert({
-            id: newId,
-            spot_id: Number(id),
-            spot_name: spot?.name || '',
-            address: spot?.address || '',
-            rating: spot?.rating || 0,
-            image: spot?.image || '',
-          })
-          .select()
-          .single();
-
-        if (!error && data) {
-          setIsSaved(true);
-          setSavedId(data.id);
-        }
-      }
-    } catch (error) {
-      console.error("Error toggling saved:", error);
+    if (isSaved && savedId) {
+      unsaveMutation.mutate(savedId);
+    } else {
+      saveMutation.mutate();
     }
   };
 
