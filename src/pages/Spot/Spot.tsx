@@ -1,8 +1,22 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle } from "lucide-react";
+import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
+
+interface SpotData {
+  id: number;
+  name: string;
+  address: string;
+  position: { lat: number; lng: number };
+  image: string;
+  rating: number;
+  description: string;
+  wifi: boolean;
+  food: boolean;
+  popularity: number;
+  nearness: number;
+}
 
 const Spot = () => {
   const { id } = useParams();
@@ -10,6 +24,8 @@ const Spot = () => {
   const location = useLocation();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [spot, setSpot] = useState<SpotData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (location.state?.reviewSubmitted) {
@@ -23,6 +39,26 @@ const Spot = () => {
       }, 2000);
     }
   }, [location]);
+
+  useEffect(() => {
+    // Fetch spot data from API
+    const fetchSpot = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+        const response = await fetch(`${apiUrl}/spots`);
+        if (response.ok) {
+          const spots = await response.json();
+          const foundSpot = spots.find((s: SpotData) => s.id === Number(id));
+          setSpot(foundSpot || null);
+        }
+      } catch (error) {
+        console.error("Error fetching spot:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSpot();
+  }, [id]);
 
   useEffect(() => {
     // Check if user has already reviewed this spot
@@ -41,24 +77,27 @@ const Spot = () => {
     checkReview();
   }, [id]);
 
-  // Mock data - in a real app this would come from an API or state management
-  const spot = {
-    id: id,
-    name: "Prototype Coffee",
-    address: "883 E Hastings St, Vancouver, BC",
-    rating: 5.0,
-    image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=400&fit=crop",
-    amenities: [
-      { icon: Wifi, label: "Free Wifi" },
-      { icon: Coffee, label: "Free Breakfast" }
-    ],
-    description: "Coffee roastery, tasting room, waffle donut bakery, coffee drink bottle shop. We serve an extensive and well curated menu of 12+ different single origin coffees",
-    previewImages: [
-      "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=200&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=200&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=200&h=200&fit=crop"
-    ]
-  };
+  if (loading || !spot) {
+    return (
+      <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
+  const amenities = [];
+  if (spot.wifi) {
+    amenities.push({ icon: Wifi, label: "Free Wifi" });
+  }
+  if (spot.food) {
+    amenities.push({ icon: UtensilsCrossed, label: "Food Available" });
+  }
+
+  const previewImages = [
+    spot.image,
+    spot.image,
+    spot.image
+  ];
 
   return (
     <div className="min-h-screen bg-white pb-20 max-w-md mx-auto">
@@ -87,7 +126,7 @@ const Spot = () => {
 
       {/* Amenities & Rating */}
       <div className="px-6 mb-6 flex items-center gap-3">
-        {spot.amenities.map((amenity, index) => (
+        {amenities.map((amenity, index) => (
           <div key={index} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
             <amenity.icon className="w-4 h-4 text-gray-700" />
             <span className="text-sm font-medium text-gray-700">{amenity.label}</span>
@@ -121,7 +160,7 @@ const Spot = () => {
       <div className="px-6 mb-6">
         <h3 className="text-base font-bold text-gray-900 mb-3">Preview</h3>
         <div className="grid grid-cols-3 gap-3">
-          {spot.previewImages.map((image, index) => (
+          {previewImages.map((image, index) => (
             <img
               key={index}
               src={image}
