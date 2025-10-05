@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle, UtensilsCrossed } from "lucide-react";
+import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle, UtensilsCrossed, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
@@ -26,6 +26,8 @@ const Spot = () => {
   const [hasReviewed, setHasReviewed] = useState(false);
   const [spot, setSpot] = useState<SpotData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (location.state?.reviewSubmitted) {
@@ -77,6 +79,66 @@ const Spot = () => {
     checkReview();
   }, [id]);
 
+  useEffect(() => {
+    // Check if spot is saved
+    const checkSaved = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+        const response = await fetch(`${apiUrl}/saved?spotId=${id}`);
+        if (response.ok) {
+          const saved = await response.json();
+          if (saved.length > 0) {
+            setIsSaved(true);
+            setSavedId(saved[0].id);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking saved status:", error);
+      }
+    };
+    checkSaved();
+  }, [id]);
+
+  const handleSaveToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+    try {
+      if (isSaved && savedId) {
+        // Remove from saved
+        const response = await fetch(`${apiUrl}/saved/${savedId}`, {
+          method: "DELETE",
+        });
+        if (response.ok) {
+          setIsSaved(false);
+          setSavedId(null);
+        }
+      } else {
+        // Add to saved
+        const response = await fetch(`${apiUrl}/saved`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            spotId: id,
+            spotName: spot?.name,
+            address: spot?.address,
+            rating: spot?.rating,
+            image: spot?.image,
+          }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setIsSaved(true);
+          setSavedId(data.id);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling saved:", error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
@@ -124,12 +186,18 @@ const Spot = () => {
       </div>
 
       {/* Hero Image */}
-      <div className="px-6 mb-4">
+      <div className="px-6 mb-4 relative">
         <img
           src={spot.image}
           alt={spot.name}
           className="w-full h-52 rounded-2xl object-cover"
         />
+        <button
+          onClick={handleSaveToggle}
+          className="absolute top-3 right-9 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors"
+        >
+          <Heart className={`w-5 h-5 ${isSaved ? "text-[#5B7553] fill-[#5B7553]" : "text-gray-400"}`} />
+        </button>
       </div>
 
       {/* Amenities & Rating */}
