@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, MapPin, Wifi, Coffee, Star, CheckCircle, UtensilsCrossed, Heart } from "lucide-react";
+import { ArrowLeft, MapPin, Wifi, Coffee, Star, CheckCircle, Utensils, Heart, AudioLines, Plug, LampDesk } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect, useMemo } from "react";
@@ -18,6 +18,11 @@ interface SpotData {
   food: boolean;
   popularity: number;
   nearness: number;
+  atmosphere_rating: number;
+  wifi_rating: number;
+  outlet_access_rating: number;
+  food_beverage_rating: number;
+  table_space_rating: number;
 }
 
 const Spot = () => {
@@ -142,13 +147,13 @@ const Spot = () => {
     );
   }
 
-  const amenities = [];
-  if (spot.wifi) {
-    amenities.push({ icon: Wifi, label: "Free Wifi" });
-  }
-  if (spot.food) {
-    amenities.push({ icon: UtensilsCrossed, label: "Food Available" });
-  }
+  const ratingCategories = [
+    { icon: AudioLines, label: "Atmosphere", rating: spot.atmosphere_rating.toFixed(1) },
+    { icon: Wifi, label: "Wi-Fi", rating: spot.wifi_rating.toFixed(1) },
+    { icon: Plug, label: "Outlet Access", rating: spot.outlet_access_rating.toFixed(1) },
+    { icon: Utensils, label: "Food & Beverage", rating: spot.food_beverage_rating.toFixed(1) },
+    { icon: LampDesk, label: "Table Space", rating: spot.table_space_rating.toFixed(1) },
+  ];
 
   const previewImages = [
     spot.image,
@@ -185,19 +190,22 @@ const Spot = () => {
         </button>
       </div>
 
-      {/* Amenities & Rating */}
-      <div className="px-6 mb-6 flex items-center gap-3">
-        {amenities.map((amenity, index) => (
-          <div key={index} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
-            <amenity.icon className="w-4 h-4 text-gray-700" />
-            <span className="text-sm font-medium text-gray-700">{amenity.label}</span>
+      {/* Category Ratings */}
+      {ratingCategories.length > 0 && (
+        <div className="px-6 mb-6">
+          <div className="flex gap-2 w-full">
+            {ratingCategories.map((category, index) => (
+              <div key={index} className="flex flex-col items-center gap-1 bg-gray-50 rounded-lg px-2 py-2 flex-1">
+                <category.icon className="w-4 h-4 text-gray-700" />
+                <div className="flex items-center gap-0.5">
+                  <Star className="w-3 h-3 text-[#5B7553] fill-[#5B7553]" />
+                  <span className="text-xs font-bold text-gray-900">{category.rating}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-        <div className="flex items-center gap-1 ml-auto">
-          <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-          <span className="text-base font-bold text-gray-900">{spot.rating}</span>
         </div>
-      </div>
+      )}
 
       {/* Location Info */}
       <div className="px-6 mb-6">

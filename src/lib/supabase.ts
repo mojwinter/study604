@@ -25,6 +25,11 @@ export interface Spot {
   nearness: number;
   review_count: number;
   tagline: string;
+  atmosphere_rating: number;
+  wifi_rating: number;
+  outlet_access_rating: number;
+  food_beverage_rating: number;
+  table_space_rating: number;
   created_at?: string;
 }
 

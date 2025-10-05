@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Wifi, Plug, Utensils, Table2, AudioLines } from "lucide-react";
+import { ChevronLeft, Wifi, Plug, Utensils, LampDesk, AudioLines } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 
@@ -52,7 +52,7 @@ const Review = () => {
     { key: "wifi", label: "Wi-Fi", icon: Wifi },
     { key: "outletAccess", label: "Outlet Access", icon: Plug },
     { key: "foodBeverage", label: "Food & Beverage", icon: Utensils },
-    { key: "tableSpace", label: "Table Space", icon: Table2 },
+    { key: "tableSpace", label: "Table Space", icon: LampDesk },
   ];
 
   const handleStarClick = (category: string, value: number) => {
