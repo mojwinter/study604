@@ -1,8 +1,11 @@
 import { MapPin, Bell, Plug, Wifi, UtensilsCrossed, Star, Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const Explore = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-white pb-20 max-w-md mx-auto">
       {/* Header with Location */}
@@ -47,7 +50,10 @@ const Explore = () => {
 
         <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
           {/* Location Card 1 */}
-          <div className="flex-shrink-0 w-64 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+          <div
+            onClick={() => navigate('/spot/1')}
+            className="flex-shrink-0 w-64 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+          >
             <div className="relative h-48">
               <img
                 src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop"
@@ -75,7 +81,10 @@ const Explore = () => {
           </div>
 
           {/* Location Card 2 */}
-          <div className="flex-shrink-0 w-64 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+          <div
+            onClick={() => navigate('/spot/2')}
+            className="flex-shrink-0 w-64 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+          >
             <div className="relative h-48">
               <img
                 src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=300&fit=crop"
@@ -113,7 +122,10 @@ const Explore = () => {
 
         <div className="space-y-4">
           {/* Popular Spot Item */}
-          <div className="flex gap-4">
+          <div
+            onClick={() => navigate('/spot/3')}
+            className="flex gap-4 cursor-pointer hover:bg-gray-50 p-2 -mx-2 rounded-xl transition-colors"
+          >
             <img
               src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=120&h=120&fit=crop"
               alt="Revolver"
@@ -136,7 +148,10 @@ const Explore = () => {
           </div>
 
           {/* Add more popular spots as needed */}
-          <div className="flex gap-4">
+          <div
+            onClick={() => navigate('/spot/4')}
+            className="flex gap-4 cursor-pointer hover:bg-gray-50 p-2 -mx-2 rounded-xl transition-colors"
+          >
             <img
               src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=120&h=120&fit=crop"
               alt="Nemesis Coffee"
