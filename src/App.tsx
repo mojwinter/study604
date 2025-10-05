@@ -12,7 +12,7 @@ function App() {
   const location = useLocation();
 
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative min-h-screen bg-white pb-20">
       <Routes>
         <Route path="/" element={<Explore />} />
         <Route path="/map" element={<Map />} />
@@ -23,7 +23,7 @@ function App() {
       </Routes>
 
       {/* Fixed Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-6">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-safe" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
         <div className="max-w-md mx-auto flex items-center justify-around px-6 pt-2">
           <Link
             to="/"
