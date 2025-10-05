@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import MarkerDialog from "../../components/MarkerDialog"
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { supabase, type Spot } from "@/lib/supabase";
+import { useQuery } from "@tanstack/react-query";
 
 const Map = () => {
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
-  const [spots, setSpots] = useState([]);
   const center = useMemo(() => ({
         lat: 49.2827, // Vancouver latitude
         lng: -123.1207, // Vancouver longitude
@@ -23,19 +22,15 @@ const Map = () => {
     east: -122.4,
   };
 
-  // Fetch spots data
-  useEffect(() => {
-    const fetchSpots = async () => {
-      try {
-        const response = await fetch(`${API_URL}/spots`);
-        const data = await response.json();
-        setSpots(data);
-      } catch (error) {
-        console.error('Error fetching spots:', error);
-      }
-    };
-    fetchSpots();
-  }, []);
+  // Fetch spots data from Supabase with caching
+  const { data: spots = [] } = useQuery({
+    queryKey: ['spots'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('spots').select('*');
+      if (error) throw error;
+      return data as Spot[];
+    },
+  });
 
   // Prevent scrolling on the map page and hide InfoWindow close button
   useEffect(() => {
