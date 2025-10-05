@@ -3,6 +3,7 @@ import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle, UtensilsCross
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface SpotData {
   id: number;
@@ -43,15 +44,19 @@ const Spot = () => {
   }, [location]);
 
   useEffect(() => {
-    // Fetch spot data from API
+    // Fetch spot data from Supabase
     const fetchSpot = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-        const response = await fetch(`${apiUrl}/spots`);
-        if (response.ok) {
-          const spots = await response.json();
-          const foundSpot = spots.find((s: SpotData) => String(s.id) === String(id));
-          setSpot(foundSpot || null);
+        const { data, error } = await supabase
+          .from('spots')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching spot:", error);
+        } else {
+          setSpot(data);
         }
       } catch (error) {
         console.error("Error fetching spot:", error);
@@ -66,11 +71,13 @@ const Spot = () => {
     // Check if user has already reviewed this spot
     const checkReview = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-        const response = await fetch(`${apiUrl}/reviews?spotId=${id}`);
-        if (response.ok) {
-          const reviews = await response.json();
-          setHasReviewed(reviews.length > 0);
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('spot_id', id);
+
+        if (!error && data) {
+          setHasReviewed(data.length > 0);
         }
       } catch (error) {
         console.error("Error checking reviews:", error);
@@ -83,14 +90,14 @@ const Spot = () => {
     // Check if spot is saved
     const checkSaved = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-        const response = await fetch(`${apiUrl}/saved?spotId=${id}`);
-        if (response.ok) {
-          const saved = await response.json();
-          if (saved.length > 0) {
-            setIsSaved(true);
-            setSavedId(saved[0].id);
-          }
+        const { data, error } = await supabase
+          .from('saved')
+          .select('*')
+          .eq('spot_id', id);
+
+        if (!error && data && data.length > 0) {
+          setIsSaved(true);
+          setSavedId(data[0].id);
         }
       } catch (error) {
         console.error("Error checking saved status:", error);
@@ -101,35 +108,36 @@ const Spot = () => {
 
   const handleSaveToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
     try {
       if (isSaved && savedId) {
         // Remove from saved
-        const response = await fetch(`${apiUrl}/saved/${savedId}`, {
-          method: "DELETE",
-        });
-        if (response.ok) {
+        const { error } = await supabase
+          .from('saved')
+          .delete()
+          .eq('id', savedId);
+
+        if (!error) {
           setIsSaved(false);
           setSavedId(null);
         }
       } else {
         // Add to saved
-        const response = await fetch(`${apiUrl}/saved`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            spotId: id,
-            spotName: spot?.name,
-            address: spot?.address,
-            rating: spot?.rating,
-            image: spot?.image,
-          }),
-        });
-        if (response.ok) {
-          const data = await response.json();
+        const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const { data, error } = await supabase
+          .from('saved')
+          .insert({
+            id: newId,
+            spot_id: Number(id),
+            spot_name: spot?.name || '',
+            address: spot?.address || '',
+            rating: spot?.rating || 0,
+            image: spot?.image || '',
+          })
+          .select()
+          .single();
+
+        if (!error && data) {
           setIsSaved(true);
           setSavedId(data.id);
         }

@@ -2,6 +2,7 @@ import { MapPin, Sun, Star, Heart, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
+import { supabase, type Spot as SupabaseSpot } from "@/lib/supabase";
 
 interface Spot {
   id: number;
@@ -25,10 +26,16 @@ const Explore = () => {
   const [allSpots, setAllSpots] = useState<Spot[]>([]);
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-    fetch(`${apiUrl}/spots`)
-      .then(res => res.json())
-      .then((spots: Spot[]) => {
+    // Fetch spots from Supabase
+    supabase
+      .from('spots')
+      .select('*')
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to fetch spots:', error);
+          return;
+        }
+        const spots = data || [];
         setAllSpots(spots);
         // Sort by nearness (lower is closer) for "Near Locations"
         const sortedByNearness = [...spots].sort((a, b) => a.nearness - b.nearness);
@@ -37,34 +44,39 @@ const Explore = () => {
         // Sort by popularity (higher is more popular) for "Popular Spots"
         const sortedByPopularity = [...spots].sort((a, b) => b.popularity - a.popularity);
         setPopularSpots(sortedByPopularity.slice(0, 5));
-      })
-      .catch(err => console.error('Failed to fetch spots:', err));
+      });
 
-    // Fetch saved spots
-    fetch(`${apiUrl}/saved`)
-      .then(res => res.json())
-      .then((saved: any[]) => {
-        const savedSet = new Set(saved.map(s => String(s.spotId)));
-        const savedMap = new Map(saved.map(s => [String(s.spotId), s.id]));
+    // Fetch saved spots from Supabase
+    supabase
+      .from('saved')
+      .select('*')
+      .then(({ data, error }) => {
+        if (error) {
+          console.error('Failed to fetch saved spots:', error);
+          return;
+        }
+        const saved = data || [];
+        const savedSet = new Set(saved.map(s => String(s.spot_id)));
+        const savedMap = new Map(saved.map(s => [String(s.spot_id), s.id]));
         setSavedSpots(savedSet);
         setSavedIds(savedMap);
-      })
-      .catch(err => console.error('Failed to fetch saved spots:', err));
+      });
   }, []);
 
   const handleSaveToggle = async (e: React.MouseEvent, spotId: number, spot: Spot) => {
     e.stopPropagation();
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
     const spotIdStr = String(spotId);
 
     try {
       if (savedSpots.has(spotIdStr)) {
         // Remove from saved
         const savedId = savedIds.get(spotIdStr);
-        const response = await fetch(`${apiUrl}/saved/${savedId}`, {
-          method: "DELETE",
-        });
-        if (response.ok) {
+        const { error } = await supabase
+          .from('saved')
+          .delete()
+          .eq('id', savedId);
+
+        if (!error) {
           setSavedSpots(prev => {
             const newSet = new Set(prev);
             newSet.delete(spotIdStr);
@@ -78,21 +90,21 @@ const Explore = () => {
         }
       } else {
         // Add to saved
-        const response = await fetch(`${apiUrl}/saved`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            spotId: spotIdStr,
-            spotName: spot.name,
+        const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const { data, error } = await supabase
+          .from('saved')
+          .insert({
+            id: newId,
+            spot_id: spotId,
+            spot_name: spot.name,
             address: spot.address,
             rating: spot.rating,
             image: spot.image,
-          }),
-        });
-        if (response.ok) {
-          const data = await response.json();
+          })
+          .select()
+          .single();
+
+        if (!error && data) {
           setSavedSpots(prev => new Set(prev).add(spotIdStr));
           setSavedIds(prev => new Map(prev).set(spotIdStr, data.id));
         }

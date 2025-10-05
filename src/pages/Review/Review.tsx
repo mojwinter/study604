@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Wifi, Plug, Utensils, Table2, AudioLines } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/lib/supabase";
 
 const Review = () => {
   const navigate = useNavigate();
@@ -23,12 +24,16 @@ const Review = () => {
   useEffect(() => {
     const fetchSpot = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-        const response = await fetch(`${apiUrl}/spots`);
-        if (response.ok) {
-          const spots = await response.json();
-          const foundSpot = spots.find((s: any) => String(s.id) === String(id));
-          setLocation(foundSpot || null);
+        const { data, error } = await supabase
+          .from('spots')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching spot:", error);
+        } else {
+          setLocation(data);
         }
       } catch (error) {
         console.error("Error fetching spot:", error);
@@ -66,31 +71,31 @@ const Review = () => {
 
     setIsSubmitting(true);
 
+    const reviewId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const reviewData = {
-      spotId: id,
-      spotName: location.name,
+      id: reviewId,
+      spot_id: Number(id),
+      spot_name: location.name,
       ratings,
-      reviewText,
+      review_text: reviewText,
       timestamp: new Date().toISOString(),
     };
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-      const response = await fetch(`${apiUrl}/reviews`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reviewData),
-      });
+      const { error } = await supabase
+        .from('reviews')
+        .insert(reviewData);
 
-      if (response.ok) {
+      if (!error) {
         // Navigate back to detail page with success state
         navigate(`/spot/${id}`, { state: { reviewSubmitted: true } });
+      } else {
+        console.error("Error submitting review:", error);
+        alert("Failed to submit review. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting review:", error);
-      alert("Failed to submit review. Please make sure JSON Server is running.");
+      alert("Failed to submit review. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

@@ -2,11 +2,12 @@ import { useNavigate } from "react-router-dom";
 import { Heart, Star, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 interface SavedSpot {
   id: string;
-  spotId: string;
-  spotName: string;
+  spot_id: number;
+  spot_name: string;
   address: string;
   rating: number;
   image: string;
@@ -20,11 +21,15 @@ const Saved = () => {
   useEffect(() => {
     const fetchSavedSpots = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-        const response = await fetch(`${apiUrl}/saved`);
-        if (response.ok) {
-          const data = await response.json();
-          setSavedSpots(data);
+        const { data, error } = await supabase
+          .from('saved')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error("Error fetching saved spots:", error);
+        } else {
+          setSavedSpots(data || []);
         }
       } catch (error) {
         console.error("Error fetching saved spots:", error);
@@ -37,13 +42,14 @@ const Saved = () => {
 
   const handleUnsave = async (e: React.MouseEvent, savedId: string) => {
     e.stopPropagation();
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
     try {
-      const response = await fetch(`${apiUrl}/saved/${savedId}`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
+      const { error } = await supabase
+        .from('saved')
+        .delete()
+        .eq('id', savedId);
+
+      if (!error) {
         setSavedSpots(prev => prev.filter(spot => spot.id !== savedId));
       }
     } catch (error) {
@@ -65,13 +71,13 @@ const Saved = () => {
           {savedSpots.map((spot) => (
             <div
               key={spot.id}
-              onClick={() => navigate(`/spot/${spot.spotId}`)}
+              onClick={() => navigate(`/spot/${spot.spot_id}`)}
               className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
             >
               <div className="relative h-48">
                 <img
                   src={spot.image || "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop"}
-                  alt={spot.spotName}
+                  alt={spot.spot_name}
                   className="w-full h-full object-cover"
                 />
                 <button
@@ -83,7 +89,7 @@ const Saved = () => {
               </div>
               <div className="p-4">
                 <div className="flex items-start justify-between mb-1">
-                  <h3 className="font-bold text-gray-900 text-lg">{spot.spotName}</h3>
+                  <h3 className="font-bold text-gray-900 text-lg">{spot.spot_name}</h3>
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                     <span className="font-semibold text-sm">{spot.rating}</span>
