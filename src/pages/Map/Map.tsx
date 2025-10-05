@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { GoogleMap, useLoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 import MarkerDialog from "../../components/MarkerDialog"
 
@@ -16,14 +16,21 @@ const markers = [
 
 const Map = () => {
   const [selectedMarkerId, setSelectedMarkerId] = useState<number | null>(null);
-  const center = {
+  const center = useMemo(() => ({
         lat: 49.2827, // Vancouver latitude
         lng: -123.1207, // Vancouver longitude
-  };
+  }), []);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API || ""
   });
+  // Vancouver area
+  const vancouverBounds = {
+    north: 49.4,
+    south: 49.0,
+    west: -123.4,
+    east: -122.4,
+  };
 
   // Prevent scrolling on the map page
   useEffect(() => {
@@ -43,10 +50,7 @@ const Map = () => {
         center={center}
         zoom={12}
         options={{
-          fullscreenControl: true,
-          fullscreenControlOptions: {
-            position: 2 // TOP_RIGHT
-          },
+          fullscreenControl: false,
           streetViewControl: false,
           mapTypeControl: false,
           zoomControl: true,
@@ -54,6 +58,10 @@ const Map = () => {
             position: 7 // RIGHT_CENTER
           },
           styles: [],
+          restriction: {
+            latLngBounds: vancouverBounds,
+            strictBounds: true
+          },
           gestureHandling: 'greedy'
         }}
       >
