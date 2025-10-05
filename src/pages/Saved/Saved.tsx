@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Heart, Star, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface SavedSpot {
   id: string;
@@ -15,46 +15,33 @@ interface SavedSpot {
 
 const Saved = () => {
   const navigate = useNavigate();
-  const [savedSpots, setSavedSpots] = useState<SavedSpot[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchSavedSpots = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('saved')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error("Error fetching saved spots:", error);
-        } else {
-          setSavedSpots(data || []);
-        }
-      } catch (error) {
-        console.error("Error fetching saved spots:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSavedSpots();
-  }, []);
-
-  const handleUnsave = async (e: React.MouseEvent, savedId: string) => {
-    e.stopPropagation();
-
-    try {
-      const { error } = await supabase
+  const { data: savedSpots = [] } = useQuery({
+    queryKey: ['saved'],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('saved')
-        .delete()
-        .eq('id', savedId);
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data as SavedSpot[];
+    },
+  });
 
-      if (!error) {
-        setSavedSpots(prev => prev.filter(spot => spot.id !== savedId));
-      }
-    } catch (error) {
-      console.error("Error removing saved spot:", error);
-    }
+  const unsaveMutation = useMutation({
+    mutationFn: async (savedId: string) => {
+      const { error } = await supabase.from('saved').delete().eq('id', savedId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved'] });
+    },
+  });
+
+  const handleUnsave = (e: React.MouseEvent, savedId: string) => {
+    e.stopPropagation();
+    unsaveMutation.mutate(savedId);
   };
 
   return (
