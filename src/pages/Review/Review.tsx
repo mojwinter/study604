@@ -132,7 +132,7 @@ const Review = () => {
                 <Badge className="bg-[#E8F0E6] text-[#5B7553] border-0 text-xs font-semibold">
                   {location.status}
                 </Badge>
-                <span className="text-sm text-gray-500">" Closes {location.closingTime}</span>
+                <span className="text-sm text-gray-500">• Closes {location.closingTime}</span>
               </div>
             </div>
           </div>
