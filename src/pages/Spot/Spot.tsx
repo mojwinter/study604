@@ -1,5 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle, UtensilsCrossed, Heart } from "lucide-react";
+import { ArrowLeft, MapPin, Wifi, Coffee, Star, CheckCircle, UtensilsCrossed, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect, useMemo } from "react";
@@ -26,6 +26,7 @@ const Spot = () => {
   const location = useLocation();
   const queryClient = useQueryClient();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   useEffect(() => {
     if (location.state?.reviewSubmitted) {
@@ -166,9 +167,7 @@ const Spot = () => {
           <ArrowLeft className="w-5 h-5 text-gray-700" />
         </button>
         <h1 className="text-lg font-bold text-gray-900">{spot.name}</h1>
-        <button className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center">
-          <Menu className="w-5 h-5 text-gray-700" />
-        </button>
+        <div className="w-10 h-10" />
       </div>
 
       {/* Hero Image */}
@@ -213,8 +212,19 @@ const Spot = () => {
       <div className="px-6 mb-6">
         <h3 className="text-base font-bold text-gray-900 mb-2">Description</h3>
         <p className="text-sm text-gray-500 leading-relaxed">
-          {spot.description}{" "}
-          <button className="text-[#5B7553] font-semibold">Read More...</button>
+          {spot.description && spot.description.length > 150 ? (
+            <>
+              {isDescriptionExpanded ? spot.description : `${spot.description.slice(0, 150)}...`}{" "}
+              <button
+                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                className="text-[#5B7553] font-semibold"
+              >
+                {isDescriptionExpanded ? "Read Less" : "Read More..."}
+              </button>
+            </>
+          ) : (
+            spot.description
+          )}
         </p>
       </div>
 
