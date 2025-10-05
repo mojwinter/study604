@@ -48,7 +48,7 @@ const Spot = () => {
         const response = await fetch(`${apiUrl}/spots`);
         if (response.ok) {
           const spots = await response.json();
-          const foundSpot = spots.find((s: SpotData) => s.id === Number(id));
+          const foundSpot = spots.find((s: SpotData) => String(s.id) === String(id));
           setSpot(foundSpot || null);
         }
       } catch (error) {
@@ -77,10 +77,18 @@ const Spot = () => {
     checkReview();
   }, [id]);
 
-  if (loading || !spot) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
         <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!spot) {
+    return (
+      <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
+        <p className="text-gray-500">Spot not found</p>
       </div>
     );
   }

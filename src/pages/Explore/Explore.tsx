@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 
 interface Spot {
-  id: string;
+  id: number;
   name: string;
   address: string;
   image: string;
@@ -88,7 +88,7 @@ const Explore = () => {
             >
               <div className="relative h-48">
                 <img
-                  src={spot.image}
+                  src={spot.image || "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop"}
                   alt={spot.name}
                   className="w-full h-full object-cover"
                 />
@@ -109,7 +109,7 @@ const Explore = () => {
                   <Badge className="bg-[#E8F0E6] text-[#5B7553] border-0 text-xs font-semibold">
                     {spot.isOpen ? 'Open' : 'Closed'}
                   </Badge>
-                  <span className="text-sm text-gray-500">• Closes {spot.closingTime}</span>
+                  {spot.closingTime && <span className="text-sm text-gray-500">• Closes {spot.closingTime}</span>}
                 </div>
               </div>
             </div>
@@ -132,7 +132,7 @@ const Explore = () => {
               className="flex gap-4 cursor-pointer hover:bg-gray-50 p-2 -mx-2 rounded-xl transition-colors"
             >
               <img
-                src={spot.image}
+                src={spot.image || "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=120&h=120&fit=crop"}
                 alt={spot.name}
                 className="w-20 h-20 rounded-2xl object-cover flex-shrink-0"
               />
@@ -149,7 +149,7 @@ const Explore = () => {
                   <Badge className="bg-[#E8F0E6] text-[#5B7553] border-0 text-xs font-semibold">
                     {spot.isOpen ? 'Open' : 'Closed'}
                   </Badge>
-                  <span className="text-sm text-gray-500">• Closes {spot.closingTime}</span>
+                  {spot.closingTime && <span className="text-sm text-gray-500">• Closes {spot.closingTime}</span>}
                 </div>
               </div>
             </div>
