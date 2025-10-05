@@ -1,4 +1,4 @@
-import { MapPin, Sun, Star, Heart, Search } from "lucide-react";
+import { MapPin, Star, Heart, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useState, useMemo } from "react";
@@ -120,9 +120,11 @@ const Explore = () => {
               <span className="font-semibold text-gray-900">Downtown, Vancouver</span>
             </div>
           </div>
-          <button className="p-2">
-            <Sun className="w-6 h-6 text-[#5B7553]" />
-          </button>
+          <img
+            src="/study604.png"
+            alt="study604"
+            className="h-12"
+          />
         </div>
 
       </div>
