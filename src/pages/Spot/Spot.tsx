@@ -23,6 +23,7 @@ interface SpotData {
   outlet_access_rating: number;
   food_beverage_rating: number;
   table_space_rating: number;
+  preview_images?: string[];
 }
 
 const Spot = () => {
@@ -155,11 +156,9 @@ const Spot = () => {
     { icon: LampDesk, label: "Table Space", rating: spot.table_space_rating.toFixed(1) },
   ];
 
-  const previewImages = [
-    spot.image,
-    spot.image,
-    spot.image
-  ];
+  const previewImages = spot.preview_images && spot.preview_images.length > 0
+    ? spot.preview_images
+    : [spot.image, spot.image, spot.image];
 
   return (
     <div className="min-h-screen bg-white pb-20 max-w-md mx-auto">

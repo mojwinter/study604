@@ -30,6 +30,7 @@ export interface Spot {
   outlet_access_rating: number;
   food_beverage_rating: number;
   table_space_rating: number;
+  preview_images?: string[];
   created_at?: string;
 }
 

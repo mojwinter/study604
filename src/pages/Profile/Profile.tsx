@@ -20,7 +20,7 @@ const Profile = () => {
       id: 1,
       spotName: "Revolver",
       address: "325 Cambie St., Vancouver, BC",
-      rating: 4.6,
+      rating: 5,
       image: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&h=300&fit=crop",
       review: "The vibes were amazing! WiFi available and outlets at every table, come by..."
     },
@@ -28,9 +28,25 @@ const Profile = () => {
       id: 2,
       spotName: "Cafe Kitsune",
       address: "157 Water St, Vancouver, BC",
-      rating: 4.3,
+      rating: 4,
       image: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400&h=300&fit=crop",
       review: "This cafe is great for studying! I think others would enjoy using this space..."
+    },
+    {
+      id: 3,
+      spotName: "Prototype Coffee",
+      address: "833 Homer St, Vancouver, BC",
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&h=300&fit=crop",
+      review: "Perfect for deep work sessions. Great coffee and quiet atmosphere..."
+    },
+    {
+      id: 4,
+      spotName: "Nelson the Seagull",
+      address: "315 Carrall St, Vancouver, BC",
+      rating: 4,
+      image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&h=300&fit=crop",
+      review: "Cozy spot with excellent pastries. Can get busy but totally worth it..."
     }
   ];
 
