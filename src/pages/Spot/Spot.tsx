@@ -166,7 +166,7 @@ const Spot = () => {
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-3 pb-3">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center"
         >
           <ArrowLeft className="w-5 h-5 text-gray-700" />
