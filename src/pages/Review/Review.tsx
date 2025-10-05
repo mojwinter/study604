@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Wifi, Zap, UtensilsCrossed, Table2, Waves } from "lucide-react";
+import { ChevronLeft, Wifi, Plug, Utensils, Table2, AudioLines } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/lib/supabase";
 
 const Review = () => {
   const navigate = useNavigate();
@@ -17,21 +18,40 @@ const Review = () => {
 
   const [reviewText, setReviewText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [location, setLocation] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock location data - would come from API/context
-  const location = {
-    name: "Cafe Kitsune",
-    address: "157 Water St, Vancouver, BC",
-    status: "Open",
-    closingTime: "6 p.m.",
-    image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=120&h=120&fit=crop",
-  };
+  useEffect(() => {
+    const fetchSpot = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('spots')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching spot:", error);
+        } else {
+          setLocation(data);
+        }
+      } catch (error) {
+        console.error("Error fetching spot:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchSpot();
+    }
+  }, [id]);
 
   const ratingCategories = [
-    { key: "atmosphere", label: "Atmosphere", icon: Waves },
+    { key: "atmosphere", label: "Atmosphere", icon: AudioLines },
     { key: "wifi", label: "Wi-Fi", icon: Wifi },
-    { key: "outletAccess", label: "Outlet Access", icon: Zap },
-    { key: "foodBeverage", label: "Food & Beverage", icon: UtensilsCrossed },
+    { key: "outletAccess", label: "Outlet Access", icon: Plug },
+    { key: "foodBeverage", label: "Food & Beverage", icon: Utensils },
     { key: "tableSpace", label: "Table Space", icon: Table2 },
   ];
 
@@ -51,31 +71,31 @@ const Review = () => {
 
     setIsSubmitting(true);
 
+    const reviewId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const reviewData = {
-      spotId: id,
-      spotName: location.name,
+      id: reviewId,
+      spot_id: Number(id),
+      spot_name: location.name,
       ratings,
-      reviewText,
+      review_text: reviewText,
       timestamp: new Date().toISOString(),
     };
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-      const response = await fetch(`${apiUrl}/reviews`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reviewData),
-      });
+      const { error } = await supabase
+        .from('reviews')
+        .insert(reviewData);
 
-      if (response.ok) {
+      if (!error) {
         // Navigate back to detail page with success state
         navigate(`/spot/${id}`, { state: { reviewSubmitted: true } });
+      } else {
+        console.error("Error submitting review:", error);
+        alert("Failed to submit review. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting review:", error);
-      alert("Failed to submit review. Please make sure JSON Server is running.");
+      alert("Failed to submit review. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -103,6 +123,22 @@ const Review = () => {
     </div>
   );
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!location) {
+    return (
+      <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
+        <p className="text-gray-500">Spot not found</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white pb-20 max-w-md mx-auto">
       {/* Header */}
@@ -121,7 +157,7 @@ const Review = () => {
         <div className="bg-white rounded-2xl p-4 mb-6 border border-gray-100">
           <div className="flex gap-3">
             <img
-              src={location.image}
+              src={location.image || "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=120&h=120&fit=crop"}
               alt={location.name}
               className="w-20 h-20 rounded-xl object-cover flex-shrink-0"
             />
@@ -130,9 +166,11 @@ const Review = () => {
               <p className="text-sm text-gray-500 mb-2">{location.address}</p>
               <div className="flex items-center gap-2">
                 <Badge className="bg-[#E8F0E6] text-[#5B7553] border-0 text-xs font-semibold">
-                  {location.status}
+                  {location.status || "Open"}
                 </Badge>
-                <span className="text-sm text-gray-500">• Closes {location.closingTime}</span>
+                {location.closingTime && (
+                  <span className="text-sm text-gray-500">• Closes {location.closingTime}</span>
+                )}
               </div>
             </div>
           </div>

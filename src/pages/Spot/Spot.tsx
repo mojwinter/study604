@@ -1,8 +1,23 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle } from "lucide-react";
+import { ArrowLeft, Menu, MapPin, Wifi, Coffee, Star, CheckCircle, UtensilsCrossed, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+
+interface SpotData {
+  id: number;
+  name: string;
+  address: string;
+  position: { lat: number; lng: number };
+  image: string;
+  rating: number;
+  description: string;
+  wifi: boolean;
+  food: boolean;
+  popularity: number;
+  nearness: number;
+}
 
 const Spot = () => {
   const { id } = useParams();
@@ -10,6 +25,10 @@ const Spot = () => {
   const location = useLocation();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [spot, setSpot] = useState<SpotData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (location.state?.reviewSubmitted) {
@@ -25,14 +44,40 @@ const Spot = () => {
   }, [location]);
 
   useEffect(() => {
+    // Fetch spot data from Supabase
+    const fetchSpot = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('spots')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (error) {
+          console.error("Error fetching spot:", error);
+        } else {
+          setSpot(data);
+        }
+      } catch (error) {
+        console.error("Error fetching spot:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSpot();
+  }, [id]);
+
+  useEffect(() => {
     // Check if user has already reviewed this spot
     const checkReview = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
-        const response = await fetch(`${apiUrl}/reviews?spotId=${id}`);
-        if (response.ok) {
-          const reviews = await response.json();
-          setHasReviewed(reviews.length > 0);
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('spot_id', id);
+
+        if (!error && data) {
+          setHasReviewed(data.length > 0);
         }
       } catch (error) {
         console.error("Error checking reviews:", error);
@@ -41,24 +86,96 @@ const Spot = () => {
     checkReview();
   }, [id]);
 
-  // Mock data - in a real app this would come from an API or state management
-  const spot = {
-    id: id,
-    name: "Prototype Coffee",
-    address: "883 E Hastings St, Vancouver, BC",
-    rating: 5.0,
-    image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=400&fit=crop",
-    amenities: [
-      { icon: Wifi, label: "Free Wifi" },
-      { icon: Coffee, label: "Free Breakfast" }
-    ],
-    description: "Coffee roastery, tasting room, waffle donut bakery, coffee drink bottle shop. We serve an extensive and well curated menu of 12+ different single origin coffees",
-    previewImages: [
-      "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=200&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=200&h=200&fit=crop",
-      "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=200&h=200&fit=crop"
-    ]
+  useEffect(() => {
+    // Check if spot is saved
+    const checkSaved = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('saved')
+          .select('*')
+          .eq('spot_id', id);
+
+        if (!error && data && data.length > 0) {
+          setIsSaved(true);
+          setSavedId(data[0].id);
+        }
+      } catch (error) {
+        console.error("Error checking saved status:", error);
+      }
+    };
+    checkSaved();
+  }, [id]);
+
+  const handleSaveToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    try {
+      if (isSaved && savedId) {
+        // Remove from saved
+        const { error } = await supabase
+          .from('saved')
+          .delete()
+          .eq('id', savedId);
+
+        if (!error) {
+          setIsSaved(false);
+          setSavedId(null);
+        }
+      } else {
+        // Add to saved
+        const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const { data, error } = await supabase
+          .from('saved')
+          .insert({
+            id: newId,
+            spot_id: Number(id),
+            spot_name: spot?.name || '',
+            address: spot?.address || '',
+            rating: spot?.rating || 0,
+            image: spot?.image || '',
+          })
+          .select()
+          .single();
+
+        if (!error && data) {
+          setIsSaved(true);
+          setSavedId(data.id);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling saved:", error);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!spot) {
+    return (
+      <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
+        <p className="text-gray-500">Spot not found</p>
+      </div>
+    );
+  }
+
+  const amenities = [];
+  if (spot.wifi) {
+    amenities.push({ icon: Wifi, label: "Free Wifi" });
+  }
+  if (spot.food) {
+    amenities.push({ icon: UtensilsCrossed, label: "Food Available" });
+  }
+
+  const previewImages = [
+    spot.image,
+    spot.image,
+    spot.image
+  ];
 
   return (
     <div className="min-h-screen bg-white pb-20 max-w-md mx-auto">
@@ -77,17 +194,23 @@ const Spot = () => {
       </div>
 
       {/* Hero Image */}
-      <div className="px-6 mb-4">
+      <div className="px-6 mb-4 relative">
         <img
           src={spot.image}
           alt={spot.name}
           className="w-full h-52 rounded-2xl object-cover"
         />
+        <button
+          onClick={handleSaveToggle}
+          className="absolute top-3 right-9 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors"
+        >
+          <Heart className={`w-5 h-5 ${isSaved ? "text-[#5B7553] fill-[#5B7553]" : "text-gray-400"}`} />
+        </button>
       </div>
 
       {/* Amenities & Rating */}
       <div className="px-6 mb-6 flex items-center gap-3">
-        {spot.amenities.map((amenity, index) => (
+        {amenities.map((amenity, index) => (
           <div key={index} className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2">
             <amenity.icon className="w-4 h-4 text-gray-700" />
             <span className="text-sm font-medium text-gray-700">{amenity.label}</span>
@@ -121,7 +244,7 @@ const Spot = () => {
       <div className="px-6 mb-6">
         <h3 className="text-base font-bold text-gray-900 mb-3">Preview</h3>
         <div className="grid grid-cols-3 gap-3">
-          {spot.previewImages.map((image, index) => (
+          {previewImages.map((image, index) => (
             <img
               key={index}
               src={image}
