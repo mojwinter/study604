@@ -75,7 +75,7 @@ const Saved = () => {
                     // Handle remove from saved
                   }}
                 >
-                  <Heart className="w-5 h-5 text-[#8B4513] fill-[#8B4513]" />
+                  <Heart className="w-5 h-5 text-[#5B7553] fill-[#5B7553]" />
                 </button>
               </div>
               <div className="p-4">
