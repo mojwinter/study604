@@ -1,8 +1,9 @@
 import { MapPin, Sun, Star, Heart, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { supabase, type Spot as SupabaseSpot } from "@/lib/supabase";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Spot {
   id: number;
@@ -18,99 +19,87 @@ interface Spot {
 
 const Explore = () => {
   const navigate = useNavigate();
-  const [nearSpots, setNearSpots] = useState<Spot[]>([]);
-  const [popularSpots, setPopularSpots] = useState<Spot[]>([]);
-  const [savedSpots, setSavedSpots] = useState<Set<string>>(new Set());
-  const [savedIds, setSavedIds] = useState<Map<string, string>>(new Map());
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
-  const [allSpots, setAllSpots] = useState<Spot[]>([]);
 
-  useEffect(() => {
-    // Fetch spots from Supabase
-    supabase
-      .from('spots')
-      .select('*')
-      .then(({ data, error }) => {
-        if (error) {
-          console.error('Failed to fetch spots:', error);
-          return;
-        }
-        const spots = data || [];
-        setAllSpots(spots);
-        // Sort by nearness (lower is closer) for "Near Locations"
-        const sortedByNearness = [...spots].sort((a, b) => a.nearness - b.nearness);
-        setNearSpots(sortedByNearness.slice(0, 5));
+  // Fetch all spots with caching
+  const { data: allSpots = [] } = useQuery({
+    queryKey: ['spots'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('spots').select('*');
+      if (error) throw error;
+      return data as Spot[];
+    },
+  });
 
-        // Sort by popularity (higher is more popular) for "Popular Spots"
-        const sortedByPopularity = [...spots].sort((a, b) => b.popularity - a.popularity);
-        setPopularSpots(sortedByPopularity.slice(0, 5));
-      });
+  // Fetch saved spots with caching
+  const { data: savedData = [] } = useQuery({
+    queryKey: ['saved'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('saved').select('*');
+      if (error) throw error;
+      return data;
+    },
+  });
 
-    // Fetch saved spots from Supabase
-    supabase
-      .from('saved')
-      .select('*')
-      .then(({ data, error }) => {
-        if (error) {
-          console.error('Failed to fetch saved spots:', error);
-          return;
-        }
-        const saved = data || [];
-        const savedSet = new Set(saved.map(s => String(s.spot_id)));
-        const savedMap = new Map(saved.map(s => [String(s.spot_id), s.id]));
-        setSavedSpots(savedSet);
-        setSavedIds(savedMap);
-      });
-  }, []);
+  // Compute saved spots set and map from cached data
+  const { savedSpots, savedIds } = useMemo(() => {
+    const savedSet = new Set(savedData.map(s => String(s.spot_id)));
+    const savedMap = new Map(savedData.map(s => [String(s.spot_id), s.id]));
+    return { savedSpots: savedSet, savedIds: savedMap };
+  }, [savedData]);
+
+  // Compute near and popular spots from cached data
+  const nearSpots = useMemo(() => {
+    return [...allSpots].sort((a, b) => a.nearness - b.nearness).slice(0, 5);
+  }, [allSpots]);
+
+  const popularSpots = useMemo(() => {
+    return [...allSpots].sort((a, b) => b.popularity - a.popularity).slice(0, 5);
+  }, [allSpots]);
+
+  const saveMutation = useMutation({
+    mutationFn: async ({ spotId, spot }: { spotId: number; spot: Spot }) => {
+      const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const { data, error } = await supabase
+        .from('saved')
+        .insert({
+          id: newId,
+          spot_id: spotId,
+          spot_name: spot.name,
+          address: spot.address,
+          rating: spot.rating,
+          image: spot.image,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved'] });
+    },
+  });
+
+  const unsaveMutation = useMutation({
+    mutationFn: async (savedId: string) => {
+      const { error } = await supabase.from('saved').delete().eq('id', savedId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved'] });
+    },
+  });
 
   const handleSaveToggle = async (e: React.MouseEvent, spotId: number, spot: Spot) => {
     e.stopPropagation();
     const spotIdStr = String(spotId);
 
-    try {
-      if (savedSpots.has(spotIdStr)) {
-        // Remove from saved
-        const savedId = savedIds.get(spotIdStr);
-        const { error } = await supabase
-          .from('saved')
-          .delete()
-          .eq('id', savedId);
-
-        if (!error) {
-          setSavedSpots(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(spotIdStr);
-            return newSet;
-          });
-          setSavedIds(prev => {
-            const newMap = new Map(prev);
-            newMap.delete(spotIdStr);
-            return newMap;
-          });
-        }
-      } else {
-        // Add to saved
-        const newId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        const { data, error } = await supabase
-          .from('saved')
-          .insert({
-            id: newId,
-            spot_id: spotId,
-            spot_name: spot.name,
-            address: spot.address,
-            rating: spot.rating,
-            image: spot.image,
-          })
-          .select()
-          .single();
-
-        if (!error && data) {
-          setSavedSpots(prev => new Set(prev).add(spotIdStr));
-          setSavedIds(prev => new Map(prev).set(spotIdStr, data.id));
-        }
-      }
-    } catch (error) {
-      console.error("Error toggling saved:", error);
+    if (savedSpots.has(spotIdStr)) {
+      const savedId = savedIds.get(spotIdStr);
+      if (savedId) unsaveMutation.mutate(savedId);
+    } else {
+      saveMutation.mutate({ spotId, spot });
     }
   };
 
