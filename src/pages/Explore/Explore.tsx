@@ -253,9 +253,9 @@ const Explore = () => {
                 />
                 <button
                   onClick={(e) => handleSaveToggle(e, spot.id, spot)}
-                  className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors"
+                  className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:bg-gray-50 transition-colors active:scale-95"
                 >
-                  <Heart className={`w-5 h-5 ${savedSpots.has(String(spot.id)) ? "text-[#5B7553] fill-[#5B7553]" : "text-gray-400"}`} />
+                  <Heart className={`w-5 h-5 transition-all duration-300 ${savedSpots.has(String(spot.id)) ? "text-[#5B7553] fill-[#5B7553] scale-110" : "text-gray-400 scale-100"}`} />
                 </button>
               </div>
               <div className="p-4">
