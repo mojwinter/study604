@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Star, MapPin, Edit } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -50,13 +50,6 @@ const Profile = () => {
     }
   ];
 
-  // Mock stats
-  const stats = {
-    studySessions: 123,
-    uniqueSpots: 67,
-    totalReviews: 4,
-    mostVisited: "Prototype Coffee"
-  };
 
   return (
     <div className="min-h-screen bg-white pb-20 md:pb-8 max-w-md md:max-w-7xl mx-auto">

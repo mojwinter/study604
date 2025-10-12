@@ -2,7 +2,7 @@ import { MapPin, Star, Heart, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useState, useMemo } from "react";
-import { supabase, type Spot as SupabaseSpot } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface Spot {
