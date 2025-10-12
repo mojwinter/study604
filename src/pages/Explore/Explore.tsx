@@ -112,16 +112,17 @@ const Explore = () => {
 
       {/* Hero Section - Desktop Only */}
       <div className="hidden md:block px-6 pt-8 pb-6">
-        <div className="bg-gradient-to-br from-[#E8F0E6] to-white rounded-3xl p-8 mb-2">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
-            Find Your Perfect Study Spot
+        <div className="bg-[#E8F0E6] rounded-3xl p-8 mb-2 shadow-sm border border-[#5B7553]/10">
+          <h1 className="text-4xl font-bold mb-3 leading-tight">
+            <span className="text-gray-900">Find Your Perfect </span>
+            <span className="text-[#5B7553]">Study Spot</span>
           </h1>
-          <p className="text-gray-600 text-lg mb-6">
+          <p className="text-gray-600 text-lg mb-6 max-w-2xl font-medium">
             Discover the best cafes and libraries in Vancouver
           </p>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <MapPin className="w-4 h-4 text-[#5B7553]" />
-            <span className="font-medium">Downtown, Vancouver</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#5B7553] rounded-full shadow-md">
+            <MapPin className="w-4 h-4 text-white" />
+            <span className="font-semibold text-sm text-white">Downtown, Vancouver</span>
           </div>
         </div>
       </div>
@@ -144,9 +145,9 @@ const Explore = () => {
         </div>
       </div>
 
-      {/* Search Box */}
-      <div className="px-6 pb-4">
-        <div className="relative max-w-2xl">
+      {/* Search Box and Filters */}
+      <div className="px-6 pb-6">
+        <div className="relative max-w-2xl md:max-w-full">
           <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
@@ -156,11 +157,9 @@ const Explore = () => {
             className="w-full pl-12 pr-4 py-3 md:py-4 bg-white border-2 border-[#5B7553] rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#5B7553] transition-all"
           />
         </div>
-      </div>
 
-      {/* Quick Filters - Desktop Only */}
-      <div className="hidden md:block px-6 pb-6">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+        {/* Quick Filters - Desktop Only */}
+        <div className="hidden md:flex gap-2 mt-4 overflow-x-auto scrollbar-hide">
           {['Open Now', 'Near Me', 'Quiet', 'WiFi', 'Outlets', 'Coffee'].map(filter => (
             <button
               key={filter}
