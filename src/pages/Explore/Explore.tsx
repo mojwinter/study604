@@ -51,7 +51,7 @@ const Explore = () => {
 
   // Compute near and popular spots from cached data
   const nearSpots = useMemo(() => {
-    return [...allSpots].sort((a, b) => a.nearness - b.nearness).slice(0, 5);
+    return [...allSpots].sort((a, b) => a.nearness - b.nearness).slice(0, 4);
   }, [allSpots]);
 
   const popularSpots = useMemo(() => {
@@ -104,7 +104,7 @@ const Explore = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white pb-20 md:pb-8 max-w-md md:max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white pb-20 md:pb-8 max-w-md md:max-w-[1600px] mx-auto md:px-4 lg:px-8">
       {/* Header - Mobile Only */}
       <div className="md:hidden px-6 pt-3 pb-4">
         <h1 className="text-2xl font-bold text-gray-900">Explore</h1>
@@ -178,7 +178,7 @@ const Explore = () => {
       {searchQuery ? (
         <div className="px-6 mb-6">
           <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">Search Results</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {allSpots
               .filter(spot =>
                 spot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -229,7 +229,7 @@ const Explore = () => {
               <button className="text-[#5B7553] font-medium text-sm md:text-base hover:underline">See all</button>
             </div>
 
-        <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-3 md:gap-6 pb-2 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide md:overflow-visible">
+        <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-6 pb-2 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide md:overflow-visible">
           {nearSpots.map((spot) => (
             <div
               key={spot.id}

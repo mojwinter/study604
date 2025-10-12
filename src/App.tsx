@@ -1,4 +1,5 @@
 import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import './App.css'
 import Explore from "./pages/Explore/Explore"
 import Saved from "./pages/Saved/Saved";
@@ -86,14 +87,64 @@ function App() {
 
       {/* Main Content - with padding for desktop sidebar */}
       <div className="md:ml-64 pb-20 md:pb-0">
-        <Routes>
-          <Route path="/" element={<Explore />} />
-          <Route path="/map" element={<Map />} />
-          <Route path="/saved" element={<Saved />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/spot/:id" element={<Spot />} />
-          <Route path="/review/:id" element={<Review />} />
-        </Routes>
+        <AnimatePresence mode="sync">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={
+              <motion.div
+                initial={{ opacity: 0.5 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.12 }}
+              >
+                <Explore />
+              </motion.div>
+            } />
+            <Route path="/map" element={
+              <motion.div
+                initial={{ opacity: 0.5 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.12 }}
+              >
+                <Map />
+              </motion.div>
+            } />
+            <Route path="/saved" element={
+              <motion.div
+                initial={{ opacity: 0.5 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.12 }}
+              >
+                <Saved />
+              </motion.div>
+            } />
+            <Route path="/profile" element={
+              <motion.div
+                initial={{ opacity: 0.5 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.12 }}
+              >
+                <Profile />
+              </motion.div>
+            } />
+            <Route path="/spot/:id" element={
+              <motion.div
+                initial={{ opacity: 0.5 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.12 }}
+              >
+                <Spot />
+              </motion.div>
+            } />
+            <Route path="/review/:id" element={
+              <motion.div
+                initial={{ opacity: 0.5 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.12 }}
+              >
+                <Review />
+              </motion.div>
+            } />
+          </Routes>
+        </AnimatePresence>
       </div>
 
       {/* Mobile Bottom Navigation - hidden on desktop */}
