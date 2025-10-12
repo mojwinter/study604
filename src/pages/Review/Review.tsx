@@ -125,7 +125,7 @@ const Review = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
+      <div className="min-h-screen bg-white pb-20 md:pb-8 max-w-md md:max-w-3xl mx-auto flex items-center justify-center">
         <p className="text-gray-500">Loading...</p>
       </div>
     );
@@ -133,37 +133,37 @@ const Review = () => {
 
   if (!location) {
     return (
-      <div className="min-h-screen bg-white pb-20 max-w-md mx-auto flex items-center justify-center">
+      <div className="min-h-screen bg-white pb-20 md:pb-8 max-w-md md:max-w-3xl mx-auto flex items-center justify-center">
         <p className="text-gray-500">Spot not found</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white pb-20 max-w-md mx-auto">
+    <div className="min-h-screen bg-white pb-20 md:pb-8 max-w-md md:max-w-3xl mx-auto">
       {/* Header */}
-      <div className="px-6 pt-3 pb-4 flex items-center gap-3">
+      <div className="px-6 pt-3 md:pt-8 pb-4 md:pb-6 flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
           className="p-1 -ml-1 hover:bg-gray-100 rounded-full transition-colors"
         >
           <ChevronLeft className="w-6 h-6 text-gray-900" />
         </button>
-        <h1 className="text-xl font-bold text-gray-900">Add a Review</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900">Add a Review</h1>
       </div>
 
       <div className="px-6">
         {/* Location Card */}
-        <div className="bg-white rounded-2xl p-4 mb-6 border border-gray-100">
-          <div className="flex gap-3">
+        <div className="bg-white rounded-2xl p-4 md:p-6 mb-6 md:mb-8 border border-gray-100">
+          <div className="flex gap-3 md:gap-4">
             <img
               src={location.image || "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=120&h=120&fit=crop"}
               alt={location.name}
-              className="w-20 h-20 rounded-xl object-cover flex-shrink-0"
+              className="w-20 h-20 md:w-24 md:h-24 rounded-xl object-cover flex-shrink-0"
             />
             <div className="flex-1 min-w-0">
-              <h2 className="font-bold text-gray-900 text-lg mb-1">{location.name}</h2>
-              <p className="text-sm text-gray-500 mb-2">{location.address}</p>
+              <h2 className="font-bold text-gray-900 text-lg md:text-xl mb-1">{location.name}</h2>
+              <p className="text-sm md:text-base text-gray-500 mb-2">{location.address}</p>
               <div className="flex items-center gap-2">
                 <Badge className="bg-[#E8F0E6] text-[#5B7553] border-0 text-xs font-semibold">
                   {location.status || "Open"}
@@ -177,12 +177,12 @@ const Review = () => {
         </div>
 
         {/* Rating Categories */}
-        <div className="space-y-5 mb-6">
+        <div className="space-y-5 md:space-y-6 mb-6 md:mb-8">
           {ratingCategories.map(({ key, label, icon: Icon }) => (
-            <div key={key} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Icon className="w-5 h-5 text-gray-700" />
-                <span className="font-medium text-gray-900">{label}</span>
+            <div key={key} className="flex items-center justify-between p-3 md:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+              <div className="flex items-center gap-3 md:gap-4">
+                <Icon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+                <span className="font-medium md:text-lg text-gray-900">{label}</span>
               </div>
               <StarRating category={key} value={ratings[key as keyof typeof ratings]} />
             </div>
@@ -190,12 +190,12 @@ const Review = () => {
         </div>
 
         {/* Review Text Area */}
-        <div className="mb-6">
+        <div className="mb-6 md:mb-8">
           <textarea
             value={reviewText}
             onChange={(e) => setReviewText(e.target.value)}
             placeholder="Describe your experience"
-            className="w-full h-48 p-4 bg-gray-50 rounded-2xl text-gray-900 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-[#5B7553] focus:bg-white transition-all"
+            className="w-full h-48 md:h-64 p-4 md:p-6 bg-gray-50 rounded-2xl text-gray-900 md:text-lg placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-[#5B7553] focus:bg-white transition-all"
           />
         </div>
 
@@ -203,7 +203,7 @@ const Review = () => {
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || !isFormValid()}
-          className="w-full bg-[#5B7553] text-white font-semibold py-4 rounded-2xl hover:bg-[#4a5f43] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-[#5B7553] text-white font-semibold py-4 md:py-5 rounded-2xl hover:bg-[#4a5f43] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-base md:text-lg"
         >
           {isSubmitting ? "Submitting..." : "Submit"}
         </button>
