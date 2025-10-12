@@ -21,6 +21,7 @@ const Explore = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAllNear, setShowAllNear] = useState(false);
 
   // Fetch all spots with caching
   const { data: allSpots = [] } = useQuery({
@@ -50,9 +51,13 @@ const Explore = () => {
   }, [savedData]);
 
   // Compute near and popular spots from cached data
-  const nearSpots = useMemo(() => {
-    return [...allSpots].sort((a, b) => a.nearness - b.nearness).slice(0, 4);
+  const allNearSpots = useMemo(() => {
+    return [...allSpots].sort((a, b) => a.nearness - b.nearness);
   }, [allSpots]);
+
+  const nearSpots = useMemo(() => {
+    return showAllNear ? allNearSpots : allNearSpots.slice(0, 4);
+  }, [allNearSpots, showAllNear]);
 
   const popularSpots = useMemo(() => {
     return [...allSpots].sort((a, b) => b.popularity - a.popularity).slice(0, 5);
@@ -225,10 +230,15 @@ const Explore = () => {
           <div className="px-6 mb-6 md:mb-8">
             <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-xl md:text-3xl font-bold text-gray-900">Near Locations</h2>
-              <button className="text-[#5B7553] font-medium text-sm md:text-base hover:underline">See all</button>
+              <button
+                onClick={() => setShowAllNear(!showAllNear)}
+                className="text-[#5B7553] font-medium text-sm md:text-base hover:underline"
+              >
+                {showAllNear ? 'Show less' : 'See all'}
+              </button>
             </div>
 
-        <div className="flex gap-4 overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-6 pb-2 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide md:overflow-visible">
+        <div className={`flex gap-4 overflow-x-auto md:grid md:grid-cols-3 lg:grid-cols-4 md:gap-6 pb-2 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide ${showAllNear ? 'md:overflow-visible' : 'md:overflow-visible'}`}>
           {nearSpots.map((spot) => (
             <div
               key={spot.id}
