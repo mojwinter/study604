@@ -1,4 +1,16 @@
-const MarkerDialog = ({ marker, onClose }) => {
+interface MarkerDialogProps {
+  marker: {
+    id: number;
+    name: string;
+    address: string;
+    image: string;
+    rating: number;
+    description: string;
+  };
+  onClose: () => void;
+}
+
+const MarkerDialog = ({ marker, onClose }: MarkerDialogProps) => {
     const handleDirections = () => {
         const encodedAddress = encodeURIComponent(marker.address);
         window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`, '_blank');

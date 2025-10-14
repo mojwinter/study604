@@ -45,21 +45,21 @@ const Saved = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white pb-20 max-w-md mx-auto">
+    <div className="min-h-screen bg-white pb-20 md:pb-8 max-w-md md:max-w-7xl mx-auto">
       {/* Header */}
-      <div className="px-6 pt-3 pb-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Saved</h1>
-        <p className="text-sm text-gray-500">{savedSpots.length} saved locations</p>
+      <div className="px-6 pt-3 pb-4 md:pt-8 md:pb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Saved</h1>
+        <p className="text-sm md:text-base text-gray-500">{savedSpots.length} saved locations</p>
       </div>
 
       {/* Saved Locations List */}
       <div className="px-6">
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {savedSpots.map((spot) => (
             <div
               key={spot.id}
               onClick={() => navigate(`/spot/${spot.spot_id}`)}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-lg transition-shadow"
             >
               <div className="relative h-48">
                 <img

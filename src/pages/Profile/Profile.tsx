@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Star, MapPin, Edit } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -50,84 +50,79 @@ const Profile = () => {
     }
   ];
 
-  // Mock stats
-  const stats = {
-    studySessions: 123,
-    uniqueSpots: 67,
-    totalReviews: 4,
-    mostVisited: "Prototype Coffee"
-  };
 
   return (
-    <div className="min-h-screen bg-white pb-20 max-w-md mx-auto">
+    <div className="min-h-screen bg-white pb-20 md:pb-8 max-w-md md:max-w-7xl mx-auto">
       {/* Header */}
-      <div className="px-6 pt-3 pb-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Profile</h1>
+      <div className="px-6 pt-3 pb-4 md:pt-8 md:pb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Profile</h1>
       </div>
 
-      {/* Profile Card */}
-      <div className="px-6 mb-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          {/* Avatar and Info */}
-          <div className="flex items-start gap-3 mb-5">
-            {/* Avatar with Initials */}
-            <div className="w-16 h-16 rounded-full bg-[#C8E6C9] flex items-center justify-center flex-shrink-0">
-              <span className="text-xl font-bold text-[#2E7D32]">{user.initials}</span>
-            </div>
+      <div className="md:grid md:grid-cols-3 md:gap-8 md:px-6">
+        {/* Profile Card */}
+        <div className="px-6 md:px-0 mb-6 md:col-span-1">
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 md:sticky md:top-8">
+            {/* Avatar and Info */}
+            <div className="flex flex-col items-center md:items-start gap-3 mb-5">
+              {/* Avatar with Initials */}
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#C8E6C9] flex items-center justify-center flex-shrink-0">
+                <span className="text-2xl md:text-3xl font-bold text-[#2E7D32]">{user.initials}</span>
+              </div>
 
-            {/* User Info */}
-            <div className="flex-1 pt-1">
-              <h2 className="text-xl font-bold text-gray-900 mb-0.5">{user.name}</h2>
-              <p className="text-sm text-gray-600 mb-0.5">{user.email}</p>
-              <p className="text-sm text-gray-600">{user.phone}</p>
-            </div>
-          </div>
-
-          {/* Edit Profile Button */}
-          <button className="w-full py-2 px-4 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
-            Edit Profile
-          </button>
-        </div>
-      </div>
-
-      {/* Reviews Section */}
-      <div className="px-6 mb-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Reviews</h2>
-        <div className="space-y-3">
-          {userReviews.map((review) => (
-            <div
-              key={review.id}
-              onClick={() => navigate(`/spot/${review.id}`)}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
-            >
-              <div className="flex gap-3 p-3">
-                {/* Image */}
-                <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                  <img
-                    src={review.image}
-                    alt={review.spotName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-1">
-                    <h3 className="font-bold text-gray-900">{review.spotName}</h3>
-                    <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                      <span className="font-semibold text-sm">{review.rating}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-1 mb-2">
-                    <MapPin className="w-3 h-3 text-gray-500 flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-gray-500 line-clamp-1">{review.address}</p>
-                  </div>
-                  <p className="text-sm text-gray-600 line-clamp-2">{review.review}</p>
-                </div>
+              {/* User Info */}
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-0.5">{user.name}</h2>
+                <p className="text-sm text-gray-600 mb-0.5">{user.email}</p>
+                <p className="text-sm text-gray-600">{user.phone}</p>
               </div>
             </div>
-          ))}
+
+            {/* Edit Profile Button */}
+            <button className="w-full py-2 px-4 border-2 border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
+              Edit Profile
+            </button>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="px-6 md:px-0 mb-6 md:col-span-2">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">Reviews</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
+            {userReviews.map((review) => (
+              <div
+                key={review.id}
+                onClick={() => navigate(`/spot/${review.id}`)}
+                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-lg transition-shadow"
+              >
+                <div className="flex gap-3 p-3">
+                  {/* Image */}
+                  <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                    <img
+                      src={review.image}
+                      alt={review.spotName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-1">
+                      <h3 className="font-bold text-gray-900">{review.spotName}</h3>
+                      <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                        <span className="font-semibold text-sm">{review.rating}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-1 mb-2">
+                      <MapPin className="w-3 h-3 text-gray-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-gray-500 line-clamp-1">{review.address}</p>
+                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-2">{review.review}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
