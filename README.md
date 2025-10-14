@@ -1,73 +1,21 @@
-# study604
+# study604.ca
+## Inspiration
+As students living off-campus, studying and working from home every day can become a drag. It's nice to change up the scenery once in a while. That's why we created **study604**.
+## What it does
+Our app helps students and remote workers quickly find the best study-friendly spots in their city. Instead of wasting time searching or guessing, users can explore cafés, libraries, and co-working spaces rated by users for Wi-Fi reliability, noise levels, space, refreshments, and outlet access. 
+## How we built it
+**study604** is a mobile web app built using React and TypeScript, and employing Supabase for the backend solution. We leveraged the Google Maps API to get update-to-date location information and an interactive map. 
+## Challenges we ran into
+Fully developing the nitty gritty details of our application and, it being our first time using Figma, creating a clean, user-friendly interface.
+## Accomplishments that we're proud of
+That we built something genuinely useful for students like ourselves and that we managed to get it together in time. 
+## What we learned
+Mobile-first development, Google Maps API integration, and much, much more.
+## What's next for study604
+**More personalization**: Don't need an outlet? Is having a quiet space essential? **study604** could understand your preferences and make more detailed and personal suggestions for the perfect study spot for you!
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Location partnership**: study604 could partner with local coffee shops and libraries to help them advertise their spaces. 
 
-Currently, two official plugins are available:
+**Curated lists**: study604 could offer more detailed information about spots, aggregating them into a wider range of categories, helping you find the spot that best matches your vibe. 
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**Expansion**: Rolling out to other cities beyond Vancouver.
