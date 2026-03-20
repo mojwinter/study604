@@ -1,7 +1,7 @@
 # study604.ca
-<img width="3839" height="2159" alt="image" src="https://github.com/user-attachments/assets/3650d4ca-7fcd-4ce6-a0ae-9e54dbee2d26" />
+<img width="3839" height="2159" alt="image" src="https://github.com/user-attachments/assets/3650d4ca-7fcd-4ce6-a0ae-9e54dbee2d26" /> 
 
-> Created as part of StormHacks 2025 Hackathon
+> [Created as part of StormHacks 2025 Hackathon](https://devpost.com/software/study604)
 
 ## Inspiration
 As students living off-campus, studying and working from home every day can become a drag. It's nice to change up the scenery once in a while. That's why we created **study604**.
